@@ -1,81 +1,48 @@
 package com.arkivanov.decompose.extensions.compose.jetpack.stack.animation
 
+import android.util.Log
+import androidx.compose.animation.core.AnimationState
 import androidx.compose.animation.core.FiniteAnimationSpec
+import androidx.compose.animation.core.animateTo
+import androidx.compose.animation.core.isFinished
 import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 
-/**
- * Animates a child widget in the given [Direction].
- */
-fun interface StackAnimator {
+internal class StackAnimator(
+    private val animationSpec: FiniteAnimationSpec<Float> = tween(),
+) {
 
-    /**
-     * Animates child [content] in the given [Direction], and calls [onFinished] at the end.
-     *
-     * @param direction the [Direction] in which the animation should run.
-     * @param isInitial `true` if the child is the initial one (and so the animation may be skipped), `false` otherwise.
-     * @param onFinished must be called at the end of the animation.
-     * @content the composable content of the child being animated.
-     */
     @Composable
     operator fun invoke(
-        direction: Direction,
-        isInitial: Boolean,
+        isEnter: Boolean,
         onFinished: () -> Unit,
         content: @Composable (Modifier) -> Unit,
-    )
-}
+    ) {
+        // This is printed for both isEnter true and false, for every child
+        Log.i("MyTest", "Animator: $isEnter")
 
-/**
- * Creates an implementation of [StackAnimator] with a convenient frame-by-frame rendering.
- *
- * @param animationSpec a [FiniteAnimationSpec] to configure the animation.
- * @param frame renders the `content` using the provided `factor` and [Direction]. Called for every animation frame.
- * The `factor` argument changes as follows:
- * - From 1F to 0F for [Direction.ENTER_FRONT]
- * - From 0F to 1F for [Direction.EXIT_FRONT]
- * - From -1F to 0F for [Direction.ENTER_BACK]
- * - From 0F to -1F for [Direction.EXIT_BACK]
- */
-fun stackAnimator(
-    animationSpec: FiniteAnimationSpec<Float> = tween(),
-    frame: @Composable (factor: Float, direction: Direction, content: @Composable (Modifier) -> Unit) -> Unit,
-): StackAnimator =
-    DefaultStackAnimator(
-        animationSpec = animationSpec,
-        frame = frame
-    )
-
-/**
- * Combines (merges) the receiver [StackAnimator] with the [other] [StackAnimator].
- */
-operator fun StackAnimator.plus(other: StackAnimator): StackAnimator =
-    StackAnimator { direction, isInitial, onFinished, content ->
-        val finished = remember(direction) { BooleanArray(2) }
-
-        this(
-            direction = direction,
-            isInitial = isInitial,
-            onFinished = {
-                finished[0] = true
-                if (finished.all { it }) {
-                    onFinished()
-                }
-            },
-        ) { thisModifier ->
-            other(
-                direction = direction,
-                isInitial = isInitial,
-                onFinished = {
-                    finished[1] = true
-                    if (finished.all { it }) {
-                        onFinished()
-                    }
-                },
-            ) { otherModifier ->
-                content(thisModifier.then(otherModifier))
-            }
+        val animationState = remember(isEnter) {
+            // This is not re-evaluated on isEnter change from true to false (when the child exits the scene)
+            Log.i("MyTest", "Animator remember: $isEnter")
+            AnimationState(initialValue = 0F)
         }
+
+        // As a result, animationState is not updated on isEnter change, and this effect is not re-executed
+        LaunchedEffect(animationState) {
+            animationState.animateTo(
+                targetValue = 1F,
+                animationSpec = animationSpec, // Commenting out this line fixes the issue
+                sequentialAnimation = !animationState.isFinished,
+            )
+
+            // So this is not called when isEnter changes the second time, and the child is not removed
+            onFinished()
+        }
+
+        content(Modifier.alpha(if (isEnter) animationState.value else 1F - animationState.value))
     }
+}

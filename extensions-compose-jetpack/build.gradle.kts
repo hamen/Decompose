@@ -1,19 +1,16 @@
-import com.arkivanov.gradle.setupAndroidLibrary
-import com.arkivanov.gradle.setupBinaryCompatibilityValidator
-import com.arkivanov.gradle.setupPublication
-
 plugins {
     id("com.android.library")
     id("kotlin-android")
-    id("com.arkivanov.gradle.setup")
 }
-
-setupAndroidLibrary()
-setupPublication()
-setupBinaryCompatibilityValidator()
 
 android {
     namespace = "com.arkivanov.decompose.extensions.compose.jetpack"
+    compileSdk = 33
+
+    defaultConfig {
+        minSdk = 21
+        targetSdk = 33
+    }
 
     buildFeatures {
         compose = true
@@ -25,12 +22,6 @@ android {
 
     defaultConfig {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-    }
-
-    packagingOptions {
-        pickFirst("META-INF/AL2.0")
-        pickFirst("META-INF/LGPL2.0")
-        pickFirst("META-INF/LGPL2.1")
     }
 }
 

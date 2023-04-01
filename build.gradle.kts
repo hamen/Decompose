@@ -1,13 +1,3 @@
-import com.arkivanov.gradle.AndroidConfig
-import com.arkivanov.gradle.BinaryCompatibilityValidatorConfig
-import com.arkivanov.gradle.PublicationConfig
-import com.arkivanov.gradle.ensureUnreachableTasksDisabled
-import com.arkivanov.gradle.iosCompat
-import com.arkivanov.gradle.macosCompat
-import com.arkivanov.gradle.setupDefaults
-import com.arkivanov.gradle.tvosCompat
-import com.arkivanov.gradle.watchosCompat
-
 buildscript {
     repositories {
         mavenCentral()
@@ -18,60 +8,12 @@ buildscript {
     dependencies {
         classpath(deps.kotlin.kotlinGradlePlug)
         classpath(deps.android.gradle)
-        classpath(deps.jetbrains.compose.composeGradlePlug)
-        classpath(deps.jetbrains.kotlinx.binaryCompatibilityValidator)
-        classpath(deps.parcelizeDarwin.gradlePlug)
     }
 }
-
-plugins {
-    id("com.arkivanov.gradle.setup")
-}
-
-setupDefaults(
-    multiplatformConfigurator = {
-        android()
-        jvm()
-        js(BOTH) { browser() }
-        iosCompat()
-        watchosCompat()
-        tvosCompat()
-        macosCompat()
-    },
-    androidConfig = AndroidConfig(
-        minSdkVersion = 21,
-        compileSdkVersion = 33,
-        targetSdkVersion = 33,
-    ),
-    binaryCompatibilityValidatorConfig = BinaryCompatibilityValidatorConfig(
-        nonPublicMarkers = listOf("com.arkivanov.decompose.InternalDecomposeApi"),
-    ),
-    publicationConfig = PublicationConfig(
-        group = "com.arkivanov.decompose",
-        version = deps.versions.decompose.get(),
-        projectName = "Decompose",
-        projectDescription = "Kotlin Multiplatform lifecycle-aware business logic components",
-        projectUrl = "https://github.com/arkivanov/Decompose",
-        scmUrl = "scm:git:git://github.com/arkivanov/Decompose.git",
-        licenseName = "The Apache License, Version 2.0",
-        licenseUrl = "http://www.apache.org/licenses/LICENSE-2.0.txt",
-        developerId = "arkivanov",
-        developerName = "Arkadii Ivanov",
-        developerEmail = "arkann1985@gmail.com",
-        signingKey = System.getenv("SIGNING_KEY"),
-        signingPassword = System.getenv("SIGNING_PASSWORD"),
-        repositoryUrl = "https://oss.sonatype.org/service/local/staging/deployByRepositoryId/${System.getenv("SONATYPE_REPOSITORY_ID")}",
-        repositoryUserName = "arkivanov",
-        repositoryPassword = System.getenv("SONATYPE_PASSWORD"),
-    ),
-)
-
-ensureUnreachableTasksDisabled()
 
 allprojects {
     repositories {
         mavenCentral()
         google()
-        maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
     }
 }
