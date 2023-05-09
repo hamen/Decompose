@@ -16,6 +16,7 @@ setupAndroidApp(
 
 android {
     namespace = "com.arkivanov.sample.app"
+    compileSdkPreview = "UpsideDownCake"
 
     packagingOptions {
         exclude("META-INF/*")
@@ -28,8 +29,12 @@ android {
 dependencies {
     implementation(project(":decompose"))
     implementation(project(":extensions-android"))
+    implementation(project(":extensions-compose-jetbrains"))
     implementation(project(":sample:shared:shared"))
     implementation(project(":sample:shared:compose"))
+    implementation("androidx.compose.runtime:runtime:${deps.versions.jetpackCompose.get()}")
+    implementation("androidx.compose.foundation:foundation:${deps.versions.jetpackCompose.get()}")
+    implementation("androidx.compose.material:material:${deps.versions.jetpackCompose.get()}")
     implementation(compose.runtime)
     implementation(compose.foundation)
     implementation(compose.material)

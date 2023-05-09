@@ -31,7 +31,9 @@ internal class DefaultStackAnimator(
                 sequentialAnimation = !animationState.isFinished,
             )
 
-            onFinished()
+            if (!isInitial) {
+                onFinished()
+            }
         }
 
         val factor =

@@ -39,6 +39,10 @@ internal class DefaultCountersComponent(
             onPrev = navigation::pop,
         )
 
+    override fun onBackPressed() {
+        navigation.pop()
+    }
+
     @Parcelize
     private data class Config(
         val index: Int,

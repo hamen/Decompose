@@ -12,6 +12,7 @@ import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -28,6 +29,13 @@ import com.arkivanov.sample.shared.dialog.DialogContent
 @Composable
 internal fun CounterContent(component: CounterComponent, modifier: Modifier = Modifier) {
     val model by component.model.subscribeAsState()
+
+//    println("MyTest: MyTest: $model")
+
+    DisposableEffect(Unit) {
+        println("MyTest: MyTest: created: ${model.title}")
+        onDispose { println("MyTest: MyTest: disposed: ${model.title}") }
+    }
 
     Column(
         modifier = modifier,

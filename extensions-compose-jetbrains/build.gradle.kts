@@ -1,4 +1,5 @@
 import com.arkivanov.gradle.bundle
+import com.arkivanov.gradle.dependsOn
 import com.arkivanov.gradle.setupBinaryCompatibilityValidator
 import com.arkivanov.gradle.setupMultiplatform
 import com.arkivanov.gradle.setupPublication
@@ -21,12 +22,17 @@ setupBinaryCompatibilityValidator()
 
 android {
     namespace = "com.arkivanov.decompose.extensions.compose.jetbrains"
+    compileSdkPreview = "UpsideDownCake"
 }
 
 kotlin {
     setupSourceSets {
         val android by bundle()
         val jvm by bundle()
+        val nonAndroid by bundle()
+
+        nonAndroid dependsOn common
+        (allSet - android) dependsOn nonAndroid
 
         all {
             languageSettings {

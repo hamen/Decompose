@@ -7,9 +7,10 @@ import kotlin.properties.Delegates.observable
 internal class DefaultChildBackHandler(
     private val parent: BackHandler,
     isEnabled: Boolean,
+    priority: Int,
 ) : ChildBackHandler {
 
-    private val parentCallback = BackCallback(isEnabled = false, onBack = ::onBack)
+    private val parentCallback = BackCallback(isEnabled = false, priority = priority, onBack = ::onBack)
     private var set = emptySet<BackCallback>()
     private val enabledChangedListener: (Boolean) -> Unit = { updateParentCallbackEnabledState() }
 

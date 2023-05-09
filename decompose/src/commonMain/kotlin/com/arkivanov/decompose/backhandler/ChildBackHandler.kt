@@ -14,8 +14,8 @@ internal interface ChildBackHandler : BackHandler {
     fun stop()
 }
 
-internal fun BackHandler.child(lifecycle: Lifecycle? = null): BackHandler {
-    val handler = childBackHandler(isEnabled = false)
+internal fun BackHandler.child(lifecycle: Lifecycle? = null, priority: Int = 0): BackHandler {
+    val handler = childBackHandler(priority = priority, isEnabled = false)
 
     if (lifecycle == null) {
         handler.isEnabled = true
@@ -34,8 +34,9 @@ internal fun BackHandler.child(lifecycle: Lifecycle? = null): BackHandler {
     return handler
 }
 
-internal fun BackHandler.childBackHandler(isEnabled: Boolean = true): ChildBackHandler =
+internal fun BackHandler.childBackHandler(isEnabled: Boolean = true, priority: Int = 0): ChildBackHandler =
     DefaultChildBackHandler(
         parent = this,
         isEnabled = isEnabled,
+        priority = priority,
     )

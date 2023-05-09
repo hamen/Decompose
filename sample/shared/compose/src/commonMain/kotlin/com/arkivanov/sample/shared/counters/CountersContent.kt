@@ -10,6 +10,7 @@ import com.arkivanov.decompose.extensions.compose.jetbrains.stack.Children
 import com.arkivanov.decompose.extensions.compose.jetbrains.stack.animation.fade
 import com.arkivanov.decompose.extensions.compose.jetbrains.stack.animation.isFront
 import com.arkivanov.decompose.extensions.compose.jetbrains.stack.animation.plus
+import com.arkivanov.decompose.extensions.compose.jetbrains.stack.animation.predictiveBackGestureAnimation
 import com.arkivanov.decompose.extensions.compose.jetbrains.stack.animation.scale
 import com.arkivanov.decompose.extensions.compose.jetbrains.stack.animation.slide
 import com.arkivanov.decompose.extensions.compose.jetbrains.stack.animation.stackAnimation
@@ -25,13 +26,13 @@ internal fun CountersContent(component: CountersComponent, modifier: Modifier = 
     Children(
         stack = component.childStack,
         modifier = modifier,
-        animation = stackAnimation { _, _, direction ->
-            if (direction.isFront) {
-                slide() + fade()
-            } else {
-                scale(frontFactor = 1F, backFactor = 0.7F) + fade()
-            }
-        },
+//        animation = stackAnimation<Any, CounterComponent> (
+////            onPredictiveBackGesture = component::onBackPressed,
+//        ).withBack { component.onBackPressed() },
+//        animation = predictiveBackGestureAnimation(
+//            animation = stackAnimation(slide()),
+//            onBack = component::onBackPressed,
+//        )
     ) {
         CounterContent(
             component = it.instance,
@@ -54,4 +55,6 @@ internal class PreviewCountersComponent : CountersComponent {
                 instance = PreviewCounterComponent(),
             )
         )
+
+    override fun onBackPressed() {}
 }
