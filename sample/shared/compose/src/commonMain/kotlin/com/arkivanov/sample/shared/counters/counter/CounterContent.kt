@@ -32,10 +32,10 @@ internal fun CounterContent(component: CounterComponent, modifier: Modifier = Mo
 
 //    println("MyTest: MyTest: $model")
 
-    DisposableEffect(Unit) {
-        println("MyTest: MyTest: created: ${model.title}")
-        onDispose { println("MyTest: MyTest: disposed: ${model.title}") }
-    }
+//    DisposableEffect(Unit) {
+//        println("MyTest: MyTest: created: ${model.title}")
+//        onDispose { println("MyTest: MyTest: disposed: ${model.title}") }
+//    }
 
     Column(
         modifier = modifier,

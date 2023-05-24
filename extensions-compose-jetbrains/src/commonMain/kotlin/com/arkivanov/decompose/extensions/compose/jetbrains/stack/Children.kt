@@ -26,7 +26,7 @@ fun <C : Any, T : Any> Children(
 
     val anim = animation ?: emptyStackAnimation()
 
-    anim(stack = stack, modifier = modifier) { child ->
+    anim(stack = stack, isEnabled = true, modifier = modifier) { child ->
         holder.SaveableStateProvider(child.configuration.key()) {
             content(child)
         }

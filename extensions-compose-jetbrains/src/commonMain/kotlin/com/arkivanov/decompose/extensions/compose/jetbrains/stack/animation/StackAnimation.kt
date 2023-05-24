@@ -14,6 +14,7 @@ fun interface StackAnimation<C : Any, T : Any> {
     operator fun invoke(
         stack: ChildStack<C, T>,
         modifier: Modifier,
+        isEnabled: Boolean,
         content: @Composable (child: Child.Created<C, T>) -> Unit,
     )
 }

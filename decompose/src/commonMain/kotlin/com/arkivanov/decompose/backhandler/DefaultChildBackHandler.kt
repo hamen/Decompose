@@ -1,6 +1,7 @@
 package com.arkivanov.decompose.backhandler
 
 import com.arkivanov.essenty.backhandler.BackCallback
+import com.arkivanov.essenty.backhandler.BackEvent
 import com.arkivanov.essenty.backhandler.BackHandler
 import kotlin.properties.Delegates.observable
 
@@ -10,7 +11,16 @@ internal class DefaultChildBackHandler(
     priority: Int,
 ) : ChildBackHandler {
 
-    private val parentCallback = BackCallback(isEnabled = false, priority = priority, onBack = ::onBack)
+    private val parentCallback =
+        BackCallback(
+            isEnabled = false,
+            priority = priority,
+            onBackStarted = ::onBackStarted,
+            onBackProgressed = ::onBackProgressed,
+            onBackCancelled = ::onBackCancelled,
+            onBack = ::onBack,
+        )
+
     private var set = emptySet<BackCallback>()
     private val enabledChangedListener: (Boolean) -> Unit = { updateParentCallbackEnabledState() }
 
@@ -51,9 +61,22 @@ internal class DefaultChildBackHandler(
         parentCallback.isEnabled = isEnabled && set.any(BackCallback::isEnabled)
     }
 
-    private fun onBack() {
-        set.lastOrNull(BackCallback::isEnabled)?.also {
-            it.onBack()
-        }
+    private fun onBackStarted(backEvent: BackEvent) {
+        set.findMostImportant()?.onBackStarted(backEvent)
     }
+
+    private fun onBackProgressed(backEvent: BackEvent) {
+        set.findMostImportant()?.onBackProgressed(backEvent)
+    }
+
+    private fun onBackCancelled() {
+        set.findMostImportant()?.onBackCancelled()
+    }
+
+    private fun onBack() {
+        set.findMostImportant()?.onBack()
+    }
+
+    private fun Iterable<BackCallback>.findMostImportant(): BackCallback? =
+        sortedBy(BackCallback::priority).lastOrNull(BackCallback::isEnabled)
 }
