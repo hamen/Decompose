@@ -7,6 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.key
 import androidx.compose.runtime.movableContentOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -71,11 +72,10 @@ internal class PredictiveBackGestureAnimation<C : Any, T : Any>(
     override fun invoke(
         stack: ChildStack<C, T>,
         modifier: Modifier,
-        isEnabled: Boolean,
-        content: @Composable (child: Child.Created<C, T>) -> Unit
+        content: @Composable (child: Child.Created<C, T>) -> Unit,
     ) {
         val data: MutableState<GestureData<C, T>?> = remember(stack) { mutableStateOf(null) }
-        val childContents = remember(content) { ChildContents(content) }
+        val childContents = remember { ChildContents(content) }
 
         BackGestureTracker(
             stack = stack,
@@ -83,46 +83,12 @@ internal class PredictiveBackGestureAnimation<C : Any, T : Any>(
             childContents = childContents,
         )
 
-//        Content(
-//            stack = stack,
-//            modifier = modifier,
-//            dataState = data,
-//            childContents = childContents,
-//        )
-
-        val dataV = data.value
-
-        if (dataV?.isButtonReleased == true) {
-            LaunchedEffect(Unit) {
-                var p = dataV.progress
-                while (p <= 1F && isActive) {
-                    data.value = dataV.copy(progress = p)
-                    delay(16.milliseconds)
-                    p += 0.075F
-                }
-
-                if (isActive) {
-                    childContents.remove(dataV.activeChild.configuration)
-                    data.value = null
-                    onBack()
-                }
-            }
-        }
-
-        val anim = remember { animation ?: emptyStackAnimation() }
-        anim(stack = stack, isEnabled = dataV == null, modifier = modifier) {
-            childContents(it)
-        }
-
-        if (dataV != null) {
-            Box(modifier = modifier) {
-                childContents(dataV.prevChild)
-
-                Box(modifier = if (dataV.progress == 0F) Modifier else activeModifier(dataV.progress, dataV.edge)) {
-                    childContents(dataV.activeChild)
-                }
-            }
-        }
+        Content(
+            stack = stack,
+            modifier = modifier,
+            dataState = data,
+            childContents = childContents,
+        )
     }
 
     @Composable
@@ -172,19 +138,56 @@ internal class PredictiveBackGestureAnimation<C : Any, T : Any>(
             backHandler.register(callback)
             onDispose { backHandler.unregister(callback) }
         }
-
-
     }
 
-//    @Composable
-//    private fun Content(
-//        stack: ChildStack<C, T>,
-//        modifier: Modifier,
-//        dataState: MutableState<GestureData<C, T>?>,
-//        childContents: ChildContents<C, T>,
-//    ) {
-//
-//    }
+    @Composable
+    private fun Content(
+        stack: ChildStack<C, T>,
+        modifier: Modifier,
+        dataState: MutableState<GestureData<C, T>?>,
+        childContents: ChildContents<C, T>,
+    ) {
+        val animKey = remember { mutableStateOf(0) }
+        val data = dataState.value
+
+        if (data?.isButtonReleased == true) {
+            LaunchedEffect(Unit) {
+                var p = data.progress
+                while (p <= 1F && isActive) {
+                    dataState.value = data.copy(progress = p)
+                    delay(16.milliseconds)
+                    p += 0.075F
+                }
+
+                if (isActive) {
+                    childContents.remove(data.activeChild.configuration)
+                    dataState.value = null
+                    animKey.value++
+                    onBack()
+                }
+            }
+        }
+
+        val anim = animation ?: emptyStackAnimation()
+
+        key(animKey.value) {
+            anim(stack = stack, modifier = modifier) {
+                if (data == null) {
+                    childContents(it)
+                }
+            }
+        }
+
+        if (data != null) {
+            Box(modifier) {
+                childContents(data.prevChild)
+
+                Box(modifier = if (data.progress == 0F) Modifier else activeModifier(data.progress, data.edge)) {
+                    childContents(data.activeChild)
+                }
+            }
+        }
+    }
 
     private data class GestureData<out C : Any, out T : Any>(
         val activeChild: Child.Created<C, T>,

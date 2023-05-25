@@ -2,7 +2,6 @@ package com.arkivanov.decompose.extensions.compose.jetbrains.stack.animation
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
@@ -25,9 +24,9 @@ internal abstract class AbstractStackAnimation<C : Any, T : Any>(
     )
 
     @Composable
-    override fun invoke(stack: ChildStack<C, T>, modifier: Modifier, isEnabled: Boolean, content: @Composable (child: Child.Created<C, T>) -> Unit) {
-        var activePage by remember(isEnabled) { mutableStateOf(stack.activePage()) }
-        var items by remember(isEnabled) { mutableStateOf(getAnimationItems(newPage = activePage, oldPage = null)) }
+    override operator fun invoke(stack: ChildStack<C, T>, modifier: Modifier, content: @Composable (child: Child.Created<C, T>) -> Unit) {
+        var activePage by remember { mutableStateOf(stack.activePage()) }
+        var items by remember { mutableStateOf(getAnimationItems(newPage = activePage, oldPage = null)) }
 
         if (stack.active.configuration != activePage.child.configuration) {
             val oldPage = activePage
@@ -47,11 +46,8 @@ internal abstract class AbstractStackAnimation<C : Any, T : Any>(
                                 items += (configuration to item.copy(otherChild = null))
                             }
                         },
-                    ) {
-                        if (isEnabled) {
-                            content(it)
-                        }
-                    }
+                        content = content,
+                    )
                 }
             }
 
