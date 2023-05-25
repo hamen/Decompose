@@ -7,6 +7,7 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.arkivanov.decompose.extensions.compose.jetbrains.stack.Children
+import com.arkivanov.decompose.extensions.compose.jetbrains.stack.animation.PredictiveBackParams
 import com.arkivanov.decompose.extensions.compose.jetbrains.stack.animation.fade
 import com.arkivanov.decompose.extensions.compose.jetbrains.stack.animation.isFront
 import com.arkivanov.decompose.extensions.compose.jetbrains.stack.animation.plus
@@ -14,8 +15,10 @@ import com.arkivanov.decompose.extensions.compose.jetbrains.stack.animation.scal
 import com.arkivanov.decompose.extensions.compose.jetbrains.stack.animation.slide
 import com.arkivanov.decompose.extensions.compose.jetbrains.stack.animation.stackAnimation
 import com.arkivanov.decompose.router.stack.ChildStack
+import com.arkivanov.decompose.router.stack.backStack
 import com.arkivanov.decompose.value.MutableValue
 import com.arkivanov.decompose.value.Value
+import com.arkivanov.essenty.backhandler.BackHandler
 import com.arkivanov.sample.shared.counters.counter.CounterComponent
 import com.arkivanov.sample.shared.counters.counter.CounterContent
 import com.arkivanov.sample.shared.counters.counter.PreviewCounterComponent
@@ -25,7 +28,12 @@ internal fun CountersContent(component: CountersComponent, modifier: Modifier = 
     Children(
         stack = component.childStack,
         modifier = modifier,
-        animation = stackAnimation { _, _, direction ->
+        animation = stackAnimation(
+            predictiveBackParams = PredictiveBackParams(
+                backHandler = component.backHandler,
+                onBack = { component.onBackClicked(component.childStack.backStack.lastIndex) },
+            ),
+        ) { _, _, direction ->
             if (direction.isFront) {
                 slide() + fade()
             } else {
@@ -47,6 +55,8 @@ internal fun CountersPreview() {
 }
 
 internal class PreviewCountersComponent : CountersComponent {
+    override val backHandler: BackHandler get() = error("Not implemented")
+
     override val childStack: Value<ChildStack<*, CounterComponent>> =
         MutableValue(
             ChildStack(

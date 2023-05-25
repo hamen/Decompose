@@ -33,10 +33,10 @@ setupDefaults(
         android()
         jvm()
         js(BOTH) { browser() }
-        iosCompat()
-        watchosCompat()
-        tvosCompat()
-        macosCompat()
+//        iosCompat()
+//        watchosCompat()
+//        tvosCompat()
+//        macosCompat()
     },
     androidConfig = AndroidConfig(
         minSdkVersion = 21,
@@ -70,6 +70,7 @@ ensureUnreachableTasksDisabled()
 
 allprojects {
     repositories {
+        mavenLocal()
         mavenCentral()
         google()
         maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")

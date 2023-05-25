@@ -26,10 +26,12 @@ fun interface StackAnimation<C : Any, T : Any> {
  */
 fun <C : Any, T : Any> stackAnimation(
     disableInputDuringAnimation: Boolean = true,
+    predictiveBackParams: PredictiveBackParams? = null,
     selector: (child: Child.Created<C, T>, otherChild: Child.Created<C, T>, direction: Direction) -> StackAnimator?,
 ): StackAnimation<C, T> =
     MovableStackAnimation(
         disableInputDuringAnimation = disableInputDuringAnimation,
+        predictiveBackParams = predictiveBackParams,
         selector = selector,
     )
 
@@ -45,6 +47,7 @@ fun <C : Any, T : Any> stackAnimation(
 ): StackAnimation<C, T> =
     SimpleStackAnimation(
         disableInputDuringAnimation = disableInputDuringAnimation,
+        predictiveBackParams = null,
         selector = selector,
     )
 
@@ -60,5 +63,6 @@ fun <C : Any, T : Any> stackAnimation(
 ): StackAnimation<C, T> =
     SimpleStackAnimation(
         disableInputDuringAnimation = disableInputDuringAnimation,
+        predictiveBackParams = null,
         selector = { animator },
     )
